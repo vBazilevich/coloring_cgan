@@ -32,6 +32,7 @@ if __name__ == "__main__":
     im = ax.imshow(np.zeros((64, 64)), vmin=0, vmax=1)
 
     N_EPOCHS = 100
+    INSTANCE_NOISE = 0.03
     for epoch_idx in range(N_EPOCHS):
         G_loss = []
         D_loss = []
@@ -45,19 +46,21 @@ if __name__ == "__main__":
             generated_data = generator(noise, image)
             
             true_data = label.to(device)
-            true_labels = torch.ones(BATCH_SIZE).to(device)
+            true_labels = torch.FloatTensor(BATCH_SIZE).uniform_(0.7, 1.2).to(device)
+            false_labels = torch.FloatTensor(BATCH_SIZE).uniform_(0.0, 0.3).to(device)
 
             # Clear optimizer gradients        
             d_optim.zero_grad()
+
             # Forward pass with true data as input
-            discriminator_output_for_true_data = discriminator(label, image).view(BATCH_SIZE)
+            discriminator_output_for_true_data = discriminator(label + torch.randn(*label.shape).to(device) * INSTANCE_NOISE, image).view(BATCH_SIZE)
             # Compute Loss
             true_discriminator_loss = loss(discriminator_output_for_true_data, true_labels)
             # Forward pass with generated data as input
-            discriminator_output_for_generated_data = discriminator(generated_data.detach(), image).view(BATCH_SIZE)
+            discriminator_output_for_generated_data = discriminator(generated_data.detach() + torch.randn(*generated_data.shape).to(device) * INSTANCE_NOISE, image).view(BATCH_SIZE)
             # Compute Loss 
             generator_discriminator_loss = loss(
-                discriminator_output_for_generated_data, torch.zeros(BATCH_SIZE).to(device)
+                discriminator_output_for_generated_data, false_labels
             )
             # Average the loss
             discriminator_loss = (
@@ -85,9 +88,9 @@ if __name__ == "__main__":
             # It's a choice to generate the data again
             generated_data = generator(noise, image)
             # Forward pass with the generated data
-            discriminator_output_on_generated_data = discriminator(generated_data, image).view(BATCH_SIZE)
+            discriminator_output_on_generated_data = discriminator(generated_data + torch.randn(*generated_data.shape).to(device) * INSTANCE_NOISE, image).view(BATCH_SIZE)
             # Compute loss
-            generator_loss = loss(discriminator_output_on_generated_data, true_labels) + 0.1 * struct_loss(generated_data, label)
+            generator_loss = loss(discriminator_output_on_generated_data, true_labels) + 0.3 * struct_loss(generated_data, label)
 
 
             # Backpropagate losses for Generator model.
