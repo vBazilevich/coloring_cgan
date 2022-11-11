@@ -11,11 +11,12 @@ class Generator(nn.Module):
         self.out_shape = out_shape
 
         def hidden(in_channels, out_channels, k=3, p=1, out=False):
-            return nn.Sequential(
-                nn.ConvTranspose2d(in_channels, out_channels, k, 1, p),
-                nn.LeakyReLU(0.1) if not out else nn.Tanh(),
-                nn.BatchNorm2d(out_channels)
-                )
+            conv = nn.ConvTranspose2d(in_channels, out_channels, k, 1, p)
+            return nn.Sequential(*[
+                conv,
+                nn.BatchNorm2d(out_channels),
+                nn.LeakyReLU(0.1)
+                ]) if not out else nn.Sequential(*[conv, nn.Tanh()])
 
         self.hidden1 = hidden(2, 4, 9, 0)
         self.hidden2 = hidden(4, 6, 9, p=0)
