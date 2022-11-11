@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
     loss = torch.nn.BCELoss()
     struct_loss = torch.nn.L1Loss()
-    d_optim = torch.optim.Adam(discriminator.parameters(), lr=0.0002)
+    d_optim = torch.optim.SGD(discriminator.parameters(), lr=0.0002)
     g_optim = torch.optim.Adam(generator.parameters(), lr=0.0002)
 
     fig, ax = plt.subplots()
@@ -47,7 +47,7 @@ if __name__ == "__main__":
             
             true_data = label.to(device)
             true_labels = torch.FloatTensor(BATCH_SIZE).uniform_(0.7, 1.2).to(device)
-            false_labels = torch.FloatTensor(BATCH_SIZE).uniform_(0.0, 0.3).to(device)
+            false_labels = torch.zeros(BATCH_SIZE).to(device)
 
             # Clear optimizer gradients        
             d_optim.zero_grad()
@@ -90,7 +90,7 @@ if __name__ == "__main__":
             # Forward pass with the generated data
             discriminator_output_on_generated_data = discriminator(generated_data + torch.randn(*generated_data.shape).to(device) * INSTANCE_NOISE, image).view(BATCH_SIZE)
             # Compute loss
-            generator_loss = loss(discriminator_output_on_generated_data, true_labels) + 0.3 * struct_loss(generated_data, label)
+            generator_loss = loss(discriminator_output_on_generated_data, true_labels) + struct_loss(generated_data, label)
 
 
             # Backpropagate losses for Generator model.
