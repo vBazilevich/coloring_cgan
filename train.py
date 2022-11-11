@@ -10,8 +10,10 @@ plt.ion()
 
 if __name__ == "__main__":
     transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor()])
+    label_transforms = torchvision.transforms.Compose([torchvision.transforms.ToTensor(),
+                                                 torchvision.transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
-    dataset = dataset.ImageColorizationDataset('dataset/', transforms)
+    dataset = dataset.ImageColorizationDataset('dataset/', transforms, label_transforms)
 
     BATCH_SIZE = 64
     dataloader = torch.utils.data.DataLoader(dataset, BATCH_SIZE, drop_last=True, num_workers=6, pin_memory=True)

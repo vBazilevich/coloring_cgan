@@ -4,9 +4,10 @@ import os
 import cv2
 
 class ImageColorizationDataset(torch.utils.data.Dataset):
-    def __init__(self, path, transforms):
+    def __init__(self, path, transforms, label_transforms):
         super().__init__()
         self.transforms = transforms
+        self.label_transforms = label_transforms
         self.labels = []
         for root, _, files in os.walk(path):
             for image in files:
@@ -20,7 +21,7 @@ class ImageColorizationDataset(torch.utils.data.Dataset):
         label = self.labels[idx]
         img_lab = cv2.cvtColor(label, cv2.COLOR_RGB2Lab)
         inp = img_lab[:, :, 0] # Extract luma
-        return self.transforms(inp), torchvision.transforms.ToTensor()(label)
+        return self.transforms(inp), self.label_transforms(label)
 
     def __len__(self):
         return len(self.labels)
