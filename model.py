@@ -15,7 +15,7 @@ class Generator(nn.Module):
             return nn.Sequential(*[
                 conv,
                 nn.BatchNorm2d(out_channels),
-                nn.LeakyReLU(0.1)
+                nn.ReLU()
                 ]) if not out else nn.Sequential(*[conv, nn.Tanh()])
 
         self.hidden1 = hidden(2, 4, 9, 0)

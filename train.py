@@ -25,8 +25,8 @@ if __name__ == "__main__":
 
     loss = torch.nn.BCELoss()
     struct_loss = torch.nn.L1Loss()
-    d_optim = torch.optim.SGD(discriminator.parameters(), lr=0.0002)
-    g_optim = torch.optim.Adam(generator.parameters(), lr=0.0002)
+    d_optim = torch.optim.SGD(discriminator.parameters(), lr=0.0004)
+    g_optim = torch.optim.Adam(generator.parameters(), lr=0.0001, betas=(0.5, 0.999))
 
     fig, ax = plt.subplots()
     im = ax.imshow(np.zeros((64, 64)), vmin=0, vmax=1)
